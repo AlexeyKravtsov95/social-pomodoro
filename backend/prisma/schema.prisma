@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User profile linked to Telegram
+model User {
+  id            Int              @id @default(autoincrement())
+  telegramId    String           @unique
+  username      String?
+  firstName     String?
+  lastName      String?
+  photoUrl      String?
+  languageCode  String?          @default("en")
+  xp            Int              @default(0)
+  level         Int              @default(1)
+  streak        Int              @default(0)
+  lastSessionAt DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  // Relations
+  teamMemberships TeamMember[]
+  sessions        FocusSession[]
+  userProgress    UserProgress[]
+  teamProgress    TeamProgress[]
+  
+  @@index([telegramId])
+}
+
+// Team/Guild
+model Team {
+  id              Int              @id @default(autoincrement())
+  name            String
+  description     String?
+  inviteCode      String           @unique
+  maxMembers      Int              @default(10)
+  weeklyGoal      Int              @default(100) // minutes
+  weeklyProgress  Int              @default(0)
+  weekStart       DateTime         @default(now())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relations
+  members         TeamMember[]
+  progress        TeamProgress[]
+  
+  @@index([inviteCode])
+}
+
+// Team membership
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  teamId    Int
+  role      String   @default("member") // owner, admin, member
+  joinedAt  DateTime @default(now())
+  
+  // Relations
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team  Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, teamId])
+  @@index([teamId])
+}
+
+// Focus session - server tracked
+model FocusSession {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  plannedMinutes Int
+  actualMinutes Int
+  status       String    @default("completed") // completed, interrupted, failed
+  startedAt    DateTime
+  completedAt  DateTime
+  xpEarned     Int       @default(0)
+  isValid      Boolean   @default(true) // anti-cheat flag
+  createdAt    DateTime  @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([startedAt])
+}
+
+// Weekly team progress tracking
+model TeamProgress {
+  id           Int       @id @default(autoincrement())
+  teamId       Int
+  userId       Int
+  weekStart    DateTime
+  minutesContributed Int @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId, weekStart])
+  @@index([teamId, weekStart])
+}
+
+// Individual user progress tracking
+model UserProgress {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  date         DateTime  @db.Date
+  minutesFocused Int     @default(0)
+  sessionsCompleted Int  @default(0)
+  xpEarned     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+}
