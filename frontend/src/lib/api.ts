@@ -1,15 +1,31 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+// Mock Telegram initData for development in browser
+// Замените user.id на ваш Telegram ID для тестирования
+const MOCK_INIT_DATA = 'query_id=test&user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Test%22%2C%22username%22%3A%22testuser%22%7D&auth_date=1700000000&hash=test';
 
 async function request<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(options.headers || {}),
+    ...options.headers,
   };
+  
+  // Add Telegram auth if available
+  let initData = window.Telegram?.WebApp?.initData;
+  
+  // Use mock initData in development if Telegram is not available
+  if (!initData && window.location.hostname === 'localhost') {
+    initData = MOCK_INIT_DATA;
+  }
+  
+  if (initData) {
+    headers['Authorization'] = `Telegram ${initData}`;
+  }
   
   const response = await fetch(url, {
     ...options,
@@ -19,52 +35,79 @@ async function request<T>(
   const data = await response.json();
   
   if (!response.ok) {
-    throw new Error(data.error || 'Request failed');
+    throw new Error(data.error || `HTTP ${response.status}`);
   }
   
   return data;
 }
 
 export const api = {
+  // Auth
   auth: {
-    login: (initData: string) => 
-      request<{ success: boolean; user: any; token: string }>('/auth/telegram', {
+    validate: (initData: string) =>
+      request<{ user: any; queryId?: string }>('/auth/validate', {
         method: 'POST',
         body: JSON.stringify({ initData }),
       }),
-    
-    me: (token: string) =>
-      request<{ success: boolean; user: any }>('/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  },
+  
+  // User
+  user: {
+    getMe: () => request<any>('/user/me'),
+    updateMe: (data: Partial<{ username: string; firstName: string; lastName: string }>) =>
+      request<any>('/user/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
       }),
   },
   
-  sessions: {
-    getActive: (token: string) =>
-      request<{ success: boolean; active: boolean; session: any | null }>('/sessions/active', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-    
-    start: (token: string, plannedMinutes: number) =>
-      request<{ success: boolean; session: any; message: string }>('/sessions/start', {
+  // Team
+  team: {
+    create: (name: string, description?: string) =>
+      request<any>('/team', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plannedMinutes }),
+        body: JSON.stringify({ name, description }),
       }),
-    
-    finish: (token: string, sessionId: number) =>
-      request<{ success: boolean; session: any; xpEarned: number; message: string }>('/sessions/finish', {
+    join: (inviteCode: string) =>
+      request<any>('/team/join', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        body: JSON.stringify({ inviteCode }),
+      }),
+    getMy: () => request<any>('/team/my'),
+    leave: () => request<{ success: boolean }>('/team/leave', {
+      method: 'POST',
+    }),
+  },
+  
+  // Session
+  session: {
+    start: (duration: number) =>
+      request<any>('/session/start', {
+        method: 'POST',
+        body: JSON.stringify({ duration: duration.toString() }),
+      }),
+    finish: (sessionId: number) =>
+      request<any>('/session/finish', {
+        method: 'POST',
         body: JSON.stringify({ sessionId }),
+      }),
+    getActive: () => request<{ active: boolean; session?: any }>('/session/active'),
+    getHistory: () => request<{ sessions: any[] }>('/session/history'),
+  },
+  
+  // Leaderboard
+  leaderboard: {
+    getGlobal: () => request<{ leaderboard: any[]; currentUser: any }>('/leaderboard/global'),
+    getTeam: () => request<{ teamId: number; teamName: string; members: any[] }>('/leaderboard/team'),
+  },
+  
+  // Quests
+  quest: {
+    getDaily: () => request<{ quests: any[] }>('/quest/daily'),
+    updateProgress: (questType: string, progress: number) =>
+      request('/quest/progress', {
+        method: 'POST',
+        body: JSON.stringify({ questType, progress }),
       }),
   },
 };

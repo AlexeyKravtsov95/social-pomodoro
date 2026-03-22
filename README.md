@@ -1,193 +1,168 @@
 # Social Focus RPG - Telegram Mini App
 
-A social deep focus RPG / co-op productivity game for Telegram. Users join teams, complete focus sessions together, and work toward shared weekly goals.
+A social productivity app where real focus sessions become XP, team progress, and weekly challenges.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-
-- Node.js 18+
+- Node.js 20+
 - Docker & Docker Compose
 - Telegram Bot Token (from @BotFather)
 
-### 1. Clone and Install
+### 1. Start Database
 
 ```bash
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
+docker-compose up -d postgres
 ```
 
-### 2. Setup Database
+### 2. Setup Backend
 
 ```bash
-# Start PostgreSQL
-docker-compose up -d
-
-# Copy environment file
-cp backend/.env.example backend/.env
-
-# Run migrations
 cd backend
+npm install
+cp .env.example .env
+# Edit .env and add your TELEGRAM_BOT_TOKEN
 npm run db:generate
-npm run db:migrate
+npm run db:push
+npm run dev
 ```
 
-### 3. Configure Environment
+Backend runs on http://localhost:3000
 
-Edit `backend/.env`:
-
-```env
-PORT=3000
-NODE_ENV=development
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/social_pomodoro?schema=public"
-TELEGRAM_BOT_TOKEN="your-bot-token-from-botfather"
-```
-
-### 4. Run Development Servers
+### 3. Setup Frontend
 
 ```bash
-# Terminal 1 - Backend
-cd backend
-npm run dev
-
-# Terminal 2 - Frontend
 cd frontend
+npm install
 npm run dev
 ```
 
-Backend: http://localhost:3000  
-Frontend: http://localhost:5173
+Frontend runs on http://localhost:5173
 
-### 5. Test in Telegram
+### 4. Docker Compose (All-in-One)
 
-1. Create a bot via @BotFather
-2. Set up a Web App button with URL: `https://your-ngrok-url.ngrok.io`
-3. Use ngrok to expose frontend: `ngrok http 5173`
+```bash
+# Edit docker-compose.yml and add your TELEGRAM_BOT_TOKEN
+TELEGRAM_BOT_TOKEN=your_token_here docker-compose up
+```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 social-pomodoro/
 ├── backend/
 │   ├── src/
-│   │   ├── config/       # Environment config
-│   │   ├── db/           # Prisma client
-│   │   ├── routes/       # API routes
-│   │   ├── services/     # Business logic
-│   │   ├── types/        # TypeScript types
-│   │   └── app.ts        # Fastify app
+│   │   ├── routes/       # API endpoints
+│   │   ├── lib/          # Utilities (auth, prisma)
+│   │   ├── config/       # Env config
+│   │   └── types/        # TypeScript types
 │   ├── prisma/
 │   │   └── schema.prisma # Database schema
 │   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── hooks/        # Custom hooks
-│   │   ├── lib/          # API client
-│   │   ├── pages/        # Page components
-│   │   ├── store/        # Zustand store
-│   │   ├── types/        # TypeScript types
-│   │   └── App.tsx
+│   │   ├── screens/      # Page components
+│   │   ├── components/   # Reusable UI
+│   │   ├── stores/       # Zustand stores
+│   │   ├── lib/          # API client, utils
+│   │   └── types/        # TypeScript types
 │   └── package.json
-├── docker-compose.yml
-└── README.md
+└── docker-compose.yml
 ```
 
-## API Endpoints
+## 🎮 Features (MVP)
 
-### Health
-- `GET /health` - Server health check
-- `GET /health/db` - Database connection check
+- ✅ Telegram Mini App integration
+- ✅ User profile with XP, level, streak
+- ✅ Focus sessions (15/25/45/60 min)
+- ✅ Server-side session validation
+- ✅ Create/join teams
+- ✅ Weekly team goals
+- ✅ Team member leaderboard
+- ✅ Premium dark theme UI
+
+## 🔧 API Endpoints
 
 ### Auth
-- `POST /auth/telegram` - Authenticate via Telegram initData
-- `GET /auth/me` - Get current user profile
+- `POST /api/auth/validate` - Validate Telegram initData
 
-### Sessions
-- `GET /sessions/active` - Get active focus session
-- `POST /sessions/start` - Start new focus session
-- `POST /sessions/finish` - Finish focus session
+### User
+- `GET /api/user/me` - Get/create user profile
+- `PATCH /api/user/me` - Update user
 
-## Database Schema
+### Team
+- `POST /api/team` - Create team
+- `POST /api/team/join` - Join team
+- `GET /api/team/my` - Get my team
+- `POST /api/team/leave` - Leave team
 
-### Core Models
+### Session
+- `POST /api/session/start` - Start focus session
+- `POST /api/session/finish` - Finish session
+- `GET /api/session/active` - Get active session
+- `GET /api/session/history` - Session history
 
-- **User** - Telegram user profile with XP, level, streak
-- **Team** - Guild/team with weekly goals
-- **TeamMember** - Team membership with roles
-- **FocusSession** - Server-tracked focus sessions
-- **TeamProgress** - Weekly team contribution tracking
-- **UserProgress** - Daily individual progress
+### Health
+- `GET /health` - Basic health check
+- `GET /health/db` - Database health
+- `GET /health/ready` - Readiness probe
 
-## MVP Features
+## 🛡️ Anti-Abuse
 
-### ✅ Implemented (Iteration 1)
-- Backend bootstrap with Fastify
-- Database schema with core entities
-- Telegram auth skeleton
-- Focus session start/finish with server tracking
-- Frontend skeleton with Telegram integration
-- Basic session timer UI
-- Anti-abuse validation (min duration, max duration)
+- Server-side session start tracking
+- Minimum duration validation (80% of target)
+- Flagged sessions for review
+- No XP for early finishes
 
-### 🔄 Next Iterations
-- Team creation and join flows
-- Invite code/link system
-- Weekly boss/goal visualization
-- Leaderboards
-- Daily quests
-- Enhanced anti-cheat
-- Team progress visualization
+## 📊 Database Schema
 
-## Anti-Abuse Measures
+- **User** - Profile, XP, level, streak
+- **Team** - Weekly goals, invite codes
+- **TeamMember** - Team membership
+- **FocusSession** - Session history
+- **WeeklyReset** - Reset tracking
+- **DailyQuest** - Quest system (future)
 
-- Server-side session timing
-- Minimum session duration (5 min)
-- Maximum session duration (180 min)
-- Session must be 80% of planned time
-- Cooldown between sessions
-- Invalid sessions flagged for review
+## 🎨 UI Components
 
-## Tech Stack
+Premium dark theme with:
+- Gradient accents (indigo/violet)
+- Card-based layouts
+- Smooth animations
+- Progress bars & badges
+- Telegram Haptic Feedback
 
-### Frontend
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS
-- Zustand (state)
-- TanStack Query (data fetching)
-- Telegram WebApp SDK
+## 🚀 Deployment
 
-### Backend
-- Node.js + TypeScript
-- Fastify
-- Prisma ORM
-- PostgreSQL
-- Zod validation
+1. Build backend: `npm run build`
+2. Build frontend: `npm run build`
+3. Deploy with Docker Compose
+4. Set production env vars
 
-## Development Commands
+## 📝 Environment Variables
 
 ### Backend
-```bash
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run db:generate  # Generate Prisma client
-npm run db:migrate   # Run migrations
-npm run db:studio    # Open Prisma Studio
+```
+PORT=3000
+DATABASE_URL=postgresql://...
+TELEGRAM_BOT_TOKEN=your_token
+TELEGRAM_WEBAPP_URL=https://your-domain.com
 ```
 
 ### Frontend
-```bash
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run preview      # Preview production build
+```
+VITE_API_URL=https://your-api.com/api
 ```
 
-## License
+## 🔮 Next Steps
 
-MIT
+- [ ] Leaderboard screen
+- [ ] Daily quests
+- [ ] Weekly reset cron
+- [ ] Push notifications
+- [ ] More team features
+- [ ] Achievement system
+
+---
+
+**Built with:** Fastify, Prisma, PostgreSQL, React, Tailwind, Telegram Mini Apps

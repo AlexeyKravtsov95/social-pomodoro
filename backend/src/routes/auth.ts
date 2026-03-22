@@ -1,159 +1,42 @@
-import { FastifyPluginAsync } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { prisma } from '../db/prisma.js';
-import { parseTelegramInitDataUnsafe } from '../services/telegram.js';
+import { validateInitData } from '../lib/telegram-auth.js';
 
-const authSchema = z.object({
+const authBodySchema = z.object({
   initData: z.string(),
 });
 
-export const authRoutes: FastifyPluginAsync = async (fastify) => {
-  /**
-   * POST /auth/telegram
-   * Authenticates user via Telegram WebApp initData
-   * Creates user if doesn't exist
-   */
-  fastify.post('/telegram', async (request, reply) => {
+export async function authRoutes(fastify: FastifyInstance) {
+  // Validate Telegram initData and return user info
+  fastify.post('/validate', async (request, reply) => {
     try {
-      const body = authSchema.parse(request.body);
+      const body = authBodySchema.parse(request.body);
       
-      // Parse initData (validation disabled for MVP - enable in production)
-      const isDev = process.env.NODE_ENV === 'development';
-      const parsed = isDev
-        ? parseTelegramInitDataUnsafe(body.initData)
-        : parseTelegramInitDataUnsafe(body.initData); // Replace with validateTelegramInitData in prod
+      const telegramData = validateInitData(body.initData, fastify.env.TELEGRAM_BOT_TOKEN);
       
-      const { user } = parsed;
-      
-      // Find or create user
-      let dbUser = await prisma.user.findUnique({
-        where: { telegramId: String(user.id) },
-      });
-      
-      if (!dbUser) {
-        dbUser = await prisma.user.create({
-          data: {
-            telegramId: String(user.id),
-            username: user.username,
-            firstName: user.first_name,
-            lastName: user.last_name,
-            photoUrl: user.photo_url,
-            languageCode: user.language_code,
-          },
-        });
-      } else {
-        // Update user info if changed
-        await prisma.user.update({
-          where: { id: dbUser.id },
-          data: {
-            username: user.username,
-            firstName: user.first_name,
-            lastName: user.last_name,
-            photoUrl: user.photo_url,
-            languageCode: user.language_code,
-          },
+      if (!telegramData) {
+        return reply.status(401).send({
+          error: 'Invalid Telegram initData',
         });
       }
       
-      // Generate a simple session token (MVP - use proper JWT in production)
-      const token = Buffer.from(JSON.stringify({
-        userId: dbUser.id,
-        telegramId: dbUser.telegramId,
-        iat: Date.now(),
-      })).toString('base64');
-      
       return {
-        success: true,
-        user: {
-          id: dbUser.id,
-          telegramId: dbUser.telegramId,
-          username: dbUser.username,
-          firstName: dbUser.firstName,
-          lastName: dbUser.lastName,
-          photoUrl: dbUser.photoUrl,
-          xp: dbUser.xp,
-          level: dbUser.level,
-          streak: dbUser.streak,
-        },
-        token,
+        user: telegramData.user,
+        queryId: telegramData.query_id,
+        startParam: telegramData.start_param,
       };
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return reply.code(400).send({
-          success: false,
-          error: 'Invalid request',
+        return reply.status(400).send({
+          error: 'Invalid request body',
           details: error.errors,
         });
       }
       
-      fastify.log.error(error);
-      return reply.code(500).send({
-        success: false,
-        error: 'Authentication failed',
+      fastify.log.error('Auth validation error:', error);
+      return reply.status(500).send({
+        error: 'Internal server error',
       });
     }
   });
-  
-  /**
-   * GET /auth/me
-   * Gets current user profile
-   */
-  fastify.get('/me', async (request, reply) => {
-    const authHeader = request.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.code(401).send({
-        success: false,
-        error: 'Unauthorized',
-      });
-    }
-    
-    try {
-      const token = authHeader.substring(7);
-      const decoded = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
-      
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
-        include: {
-          teamMemberships: {
-            include: {
-              team: true,
-            },
-          },
-        },
-      });
-      
-      if (!user) {
-        return reply.code(404).send({
-          success: false,
-          error: 'User not found',
-        });
-      }
-      
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          telegramId: user.telegramId,
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          photoUrl: user.photoUrl,
-          xp: user.xp,
-          level: user.level,
-          streak: user.streak,
-          teams: user.teamMemberships.map((m) => ({
-            teamId: m.team.id,
-            teamName: m.team.name,
-            role: m.role,
-          })),
-        },
-      };
-    } catch (error) {
-      return reply.code(401).send({
-        success: false,
-        error: 'Invalid token',
-      });
-    }
-  });
-};
+}

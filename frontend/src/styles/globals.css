@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-background-primary text-text-primary;
+    @apply min-h-screen;
+    @apply selection:bg-accent-primary selection:text-white;
+  }
+  
+  #root {
+    @apply min-h-screen;
+  }
+}
+
+@layer components {
+  /* Premium Card */
+  .card {
+    @apply bg-card rounded-2xl p-5;
+    @apply shadow-card;
+    @apply transition-all duration-300;
+    @apply border border-white/5;
+  }
+  
+  .card:hover {
+    @apply shadow-card-hover;
+    @apply border-white/10;
+  }
+  
+  /* Primary Button */
+  .btn-primary {
+    @apply bg-gradient-primary;
+    @apply text-white font-semibold;
+    @apply py-3.5 px-6 rounded-xl;
+    @apply shadow-lg shadow-accent-primary/25;
+    @apply transition-all duration-300;
+    @apply active:scale-95;
+  }
+  
+  .btn-primary:hover {
+    @apply shadow-glow-sm;
+  }
+  
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    @apply active:scale-100;
+  }
+  
+  /* Secondary Button */
+  .btn-secondary {
+    @apply bg-background-tertiary;
+    @apply text-text-primary font-semibold;
+    @apply py-3.5 px-6 rounded-xl;
+    @apply border border-white/10;
+    @apply transition-all duration-300;
+    @apply active:scale-95;
+  }
+  
+  .btn-secondary:hover {
+    @apply bg-card-hover border-white/20;
+  }
+  
+  /* Input Field */
+  .input-field {
+    @apply bg-background-secondary;
+    @apply text-text-primary;
+    @apply py-3.5 px-4 rounded-xl;
+    @apply border border-white/10;
+    @apply focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/20;
+    @apply transition-all duration-200;
+    @apply placeholder:text-text-muted;
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    @apply h-2.5 rounded-full;
+    @apply bg-background-tertiary;
+    @apply overflow-hidden;
+  }
+  
+  .progress-bar-fill {
+    @apply h-full rounded-full;
+    @apply bg-gradient-primary;
+    @apply transition-all duration-500 ease-out;
+  }
+  
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center;
+    @apply px-2.5 py-1 rounded-lg;
+    @apply text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply bg-accent-primary/20 text-accent-primary;
+  }
+  
+  .badge-success {
+    @apply bg-accent-success/20 text-accent-success;
+  }
+  
+  /* Stat Card */
+  .stat-card {
+    @apply bg-gradient-card;
+    @apply rounded-2xl p-4;
+    @apply border border-white/5;
+    @apply text-center;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-bold text-text-primary;
+  }
+  
+  .stat-label {
+    @apply text-sm text-text-secondary;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+  
+  .animate-once {
+    animation-iteration-count: 1;
+  }
+}

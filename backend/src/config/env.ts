@@ -2,15 +2,16 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   PORT: z.string().default('3000'),
+  HOST: z.string().default('0.0.0.0'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().url(),
-  TELEGRAM_BOT_TOKEN: z.string().optional(),
-  TELEGRAM_WEB_APP_URL: z.string().url().optional(),
+  TELEGRAM_BOT_TOKEN: z.string().min(1, 'TELEGRAM_BOT_TOKEN is required'),
+  TELEGRAM_WEBAPP_URL: z.string().url().default('http://localhost:5173'),
 });
 
 export type Env = z.infer<typeof envSchema>;
 
-function loadEnv(): Env {
+export function loadEnv(): Env {
   const result = envSchema.safeParse(process.env);
   
   if (!result.success) {
@@ -21,5 +22,3 @@ function loadEnv(): Env {
   
   return result.data;
 }
-
-export const env = loadEnv();
