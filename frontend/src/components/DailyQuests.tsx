@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { Card } from './ui/Card';
 
@@ -15,8 +14,6 @@ interface Quest {
 }
 
 export function DailyQuests() {
-  const queryClient = useQueryClient();
-  
   const { data, isLoading } = useQuery({
     queryKey: ['quests', 'daily'],
     queryFn: () => api.quest.getDaily(),

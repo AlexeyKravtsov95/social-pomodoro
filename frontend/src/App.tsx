@@ -5,7 +5,6 @@ import { useSessionStore } from './stores/sessionStore';
 import { api } from './lib/api';
 
 // Screens
-import LoadingScreen from './screens/LoadingScreen';
 import HomeScreen from './screens/HomeScreen';
 import TeamScreen from './screens/TeamScreen';
 import ProfileScreen from './screens/ProfileScreen';

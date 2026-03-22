@@ -10,10 +10,8 @@ async function request<T>(
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
+  const headers = new Headers(options.headers);
+  headers.set('Content-Type', 'application/json');
   
   // Add Telegram auth if available
   let initData = window.Telegram?.WebApp?.initData;
@@ -24,7 +22,7 @@ async function request<T>(
   }
   
   if (initData) {
-    headers['Authorization'] = `Telegram ${initData}`;
+    headers.set('Authorization', `Telegram ${initData}`);
   }
   
   const response = await fetch(url, {

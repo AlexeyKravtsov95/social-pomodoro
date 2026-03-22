@@ -15,7 +15,7 @@ export default function LeaderboardScreen() {
     retry: 1,
   });
 
-  const { data: teamData, isLoading: isLoadingTeam } = useQuery({
+  const { data: teamData, isLoading: isLoadingTeam, error: teamError } = useQuery({
     queryKey: ['leaderboard', 'team'],
     queryFn: () => api.leaderboard.getTeam(),
     retry: 1,
@@ -23,11 +23,9 @@ export default function LeaderboardScreen() {
   });
 
   const isLoading = activeTab === 'global' ? isLoadingGlobal : isLoadingTeam;
-  const error = activeTab === 'global' 
-    ? globalData?.error 
-    : teamData?.error;
+  const hasError = activeTab === 'global' ? !globalData : teamError || !teamData;
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="p-4 space-y-4 animate-fade-in">
         <header className="mb-6">
@@ -51,8 +49,8 @@ export default function LeaderboardScreen() {
 
   const data = activeTab === 'global' ? globalData : teamData;
   const members = activeTab === 'global' 
-    ? data?.leaderboard || [] 
-    : data?.members || [];
+    ? (globalData?.leaderboard || [])
+    : (teamData?.members || []);
 
   return (
     <div className="p-4 space-y-4 animate-fade-in pb-24">
@@ -90,12 +88,12 @@ export default function LeaderboardScreen() {
       </div>
 
       {/* Team Info (for team tab) */}
-      {activeTab === 'team' && data?.teamName && (
+      {activeTab === 'team' && teamData && (
         <Card>
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-text-primary">
-                {data.teamName}
+                {teamData.teamName}
               </h3>
               <p className="text-sm text-text-muted">
                 {members.length} участников
@@ -104,7 +102,7 @@ export default function LeaderboardScreen() {
             <div className="text-right">
               <div className="text-sm text-text-muted">Прогресс</div>
               <div className="text-lg font-bold text-gradient">
-                {data.weeklyProgress} / {data.weeklyGoal} XP
+                {teamData.weeklyProgress} / {teamData.weeklyGoal} XP
               </div>
             </div>
           </div>
