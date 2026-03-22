@@ -27,9 +27,7 @@ fastify.decorate('prisma', prisma);
 
 // Register CORS for frontend
 await fastify.register(cors, {
-  origin: env.NODE_ENV === 'production' 
-    ? [env.TELEGRAM_WEBAPP_URL, /\.vercel\.app$/] 
-    : true, // Allow all in development
+  origin: true, // Allow all origins for now
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
