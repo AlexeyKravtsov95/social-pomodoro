@@ -4,3 +4,7 @@ dist
 .env.local
 *.log
 .DS_Store
+prisma/*.db
+prisma/*.db-journal
+!node_modules/.prisma/client/index.d.ts
+!node_modules/.prisma/client/index.js

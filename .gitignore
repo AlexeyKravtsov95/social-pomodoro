@@ -3,6 +3,12 @@ node_modules/
 .pnp
 .pnp.js
 
+# Prisma (но сохраняем сгенерированный client)
+backend/node_modules/.prisma/client/index.d.ts
+!backend/node_modules/.prisma/client/index.d.ts
+backend/node_modules/.prisma/client/index.js
+!backend/node_modules/.prisma/client/index.js
+
 # Build
 dist/
 build/

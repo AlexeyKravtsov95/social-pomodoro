@@ -25,6 +25,11 @@ const fastify = Fastify({
 fastify.decorate('env', env);
 fastify.decorate('prisma', prisma);
 
+// Register global CORS handler - MUST be before routes
+fastify.options('*', async (request, reply) => {
+  reply.send();
+});
+
 // Register CORS for frontend
 await fastify.register(cors, {
   origin: true, // Allow all origins for now
@@ -49,11 +54,13 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 // Start server
 try {
-  await fastify.listen({ 
-    port: parseInt(env.PORT, 10), 
-    host: env.HOST 
+  await fastify.listen({
+    port: parseInt(env.PORT, 10),
+    host: env.HOST
   });
+  const addr = fastify.server.address();
   fastify.log.info(`🚀 Server running at http://${env.HOST}:${env.PORT}`);
+  fastify.log.info(`📡 Actual address: ${JSON.stringify(addr)}`);
   
   // Setup cron jobs after server starts
   const weeklyReset = setupWeeklyReset(prisma);
