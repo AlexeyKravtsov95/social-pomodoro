@@ -38,7 +38,7 @@ export default function LeaderboardScreen() {
         </header>
         <Card>
           <div className="text-center py-8 text-text-secondary">
-            {activeTab === 'team' 
+            {activeTab === 'team'
               ? 'Вы не в команде. Присоединитесь к команде, чтобы видеть рейтинг.'
               : 'Ошибка загрузки лидерборда'}
           </div>
@@ -47,8 +47,7 @@ export default function LeaderboardScreen() {
     );
   }
 
-  const data = activeTab === 'global' ? globalData : teamData;
-  const members = activeTab === 'global' 
+  const members = activeTab === 'global'
     ? (globalData?.leaderboard || [])
     : (teamData?.members || []);
 

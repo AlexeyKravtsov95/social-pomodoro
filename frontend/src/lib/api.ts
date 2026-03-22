@@ -71,7 +71,16 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ inviteCode }),
       }),
-    getMy: () => request<any>('/team/my'),
+    getMy: () => request<{
+      id: number;
+      name: string;
+      description: string | null;
+      inviteCode: string;
+      weeklyGoal: number;
+      weeklyProgress: number;
+      weekStart?: string;
+      members: any[];
+    } | null>('/team/my'),
     leave: () => request<{ success: boolean }>('/team/leave', {
       method: 'POST',
     }),
@@ -96,7 +105,13 @@ export const api = {
   // Leaderboard
   leaderboard: {
     getGlobal: () => request<{ leaderboard: any[]; currentUser: any }>('/leaderboard/global'),
-    getTeam: () => request<{ teamId: number; teamName: string; members: any[] }>('/leaderboard/team'),
+    getTeam: () => request<{
+      teamId: number;
+      teamName: string;
+      weeklyGoal: number;
+      weeklyProgress: number;
+      members: any[];
+    }>('/leaderboard/team'),
   },
   
   // Quests

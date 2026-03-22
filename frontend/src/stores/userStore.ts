@@ -16,6 +16,8 @@ interface User {
     name: string;
     weeklyGoal: number;
     weeklyProgress: number;
+    inviteCode?: string;
+    members?: any[];
   } | null;
   createdAt: string;
 }
