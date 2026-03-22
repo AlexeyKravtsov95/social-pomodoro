@@ -48,7 +48,7 @@ export function setupWeeklyReset(prisma: PrismaClient) {
       
       console.log(`[Cron] Weekly reset complete. Reset ${result.count} teams.`);
     } catch (error) {
-      console.error('[Cron] Weekly reset failed:', error);
+      console.error('[Cron] Weekly reset failed:', error instanceof Error ? error.message : error);
     }
   });
   

@@ -33,7 +33,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         });
       }
       
-      fastify.log.error('Auth validation error:', error);
+      fastify.log.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'Auth validation error:');
       return reply.status(500).send({
         error: 'Internal server error',
       });

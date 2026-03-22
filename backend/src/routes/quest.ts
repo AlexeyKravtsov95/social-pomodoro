@@ -8,7 +8,7 @@ export async function questRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -47,7 +47,7 @@ export async function questRoutes(fastify: FastifyInstance) {
           })),
         };
       } catch (error) {
-        fastify.log.error('Get daily quests error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get daily quests error:')
         return reply.status(500).send({
           error: 'Failed to get daily quests',
         });
@@ -60,7 +60,7 @@ export async function questRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -162,7 +162,7 @@ export async function questRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Update quest progress error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Update quest progress error:')
         return reply.status(500).send({
           error: 'Failed to update quest progress',
         });

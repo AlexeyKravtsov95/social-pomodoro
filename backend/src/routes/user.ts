@@ -138,7 +138,7 @@ export async function userRoutes(fastify: FastifyInstance) {
           createdAt: user.createdAt.toISOString(),
         };
       } catch (error) {
-        fastify.log.error('Get user error:', error);
+        fastify.log.error({ err: error }, 'Get user error:');
         return reply.status(500).send({
           error: 'Failed to get user profile',
         });
@@ -187,7 +187,7 @@ export async function userRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Update user error:', error);
+        fastify.log.error({ err: error }, 'Update user error:');
         return reply.status(500).send({
           error: 'Failed to update user profile',
         });

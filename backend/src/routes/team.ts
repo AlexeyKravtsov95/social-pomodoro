@@ -17,7 +17,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         const body = createTeamSchema.parse(request.body);
         
         // Find user
@@ -95,7 +95,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Create team error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Create team error:')
         return reply.status(500).send({
           error: 'Failed to create team',
         });
@@ -108,7 +108,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         const body = joinTeamSchema.parse(request.body);
         
         // Find user
@@ -190,7 +190,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Join team error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Join team error:')
         return reply.status(500).send({
           error: 'Failed to join team',
         });
@@ -203,7 +203,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -256,7 +256,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
           })),
         };
       } catch (error) {
-        fastify.log.error('Get team error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get team error:')
         return reply.status(500).send({
           error: 'Failed to get team',
         });
@@ -269,7 +269,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -313,7 +313,7 @@ export async function teamRoutes(fastify: FastifyInstance) {
         
         return { success: true };
       } catch (error) {
-        fastify.log.error('Leave team error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Leave team error:')
         return reply.status(500).send({
           error: 'Failed to leave team',
         });

@@ -20,7 +20,7 @@ export async function healthRoutes(fastify: FastifyInstance) {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      fastify.log.error('Database health check failed:', error);
+      fastify.log.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'Database health check failed:');
       throw error;
     }
   });
@@ -35,7 +35,7 @@ export async function healthRoutes(fastify: FastifyInstance) {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      fastify.log.error('Readiness check failed:', error);
+      fastify.log.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'Readiness check failed:');
       return { 
         status: 'not_ready',
         database: 'disconnected',

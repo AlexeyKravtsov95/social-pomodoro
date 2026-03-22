@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { loadEnv, type Env } from './config/env.js';
+import { loadEnv } from './config/env.js';
 import { registerRoutes } from './routes/index.js';
 import { prisma, disconnectPrisma } from './lib/prisma.js';
 import { setupWeeklyReset, setupDailyQuestReset } from './lib/cron.js';

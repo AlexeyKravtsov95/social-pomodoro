@@ -7,11 +7,18 @@ export async function leaderboardRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         // Get current user
         const currentUser = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
+          include: {
+            team: {
+              select: {
+                name: true,
+              },
+            },
+          },
         });
         
         if (!currentUser) {
@@ -80,7 +87,7 @@ export async function leaderboardRoutes(fastify: FastifyInstance) {
           },
         };
       } catch (error) {
-        fastify.log.error('Get global leaderboard error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get global leaderboard error:')
         return reply.status(500).send({
           error: 'Failed to get global leaderboard',
         });
@@ -93,7 +100,7 @@ export async function leaderboardRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -153,7 +160,7 @@ export async function leaderboardRoutes(fastify: FastifyInstance) {
           })),
         };
       } catch (error) {
-        fastify.log.error('Get team leaderboard error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get team leaderboard error:')
         return reply.status(500).send({
           error: 'Failed to get team leaderboard',
         });

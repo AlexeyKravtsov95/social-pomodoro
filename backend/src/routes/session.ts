@@ -27,7 +27,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         const body = startSessionSchema.parse(request.body);
         
         // Find user
@@ -78,7 +78,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Start session error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Start session error:')
         return reply.status(500).send({
           error: 'Failed to start session',
         });
@@ -91,7 +91,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         const body = finishSessionSchema.parse(request.body);
         
         // Find user
@@ -230,7 +230,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
               }
             }
           } catch (questError) {
-            fastify.log.error('Failed to update quest progress:', questError);
+            fastify.log.error({ err: questError instanceof Error ? questError : new Error('Unknown') }, 'Failed to update quest progress:');
             // Don't fail the session if quest update fails
           }
           
@@ -267,7 +267,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
           });
         }
         
-        fastify.log.error('Finish session error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Finish session error:')
         return reply.status(500).send({
           error: 'Failed to finish session',
         });
@@ -280,7 +280,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -307,7 +307,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
           })),
         };
       } catch (error) {
-        fastify.log.error('Get session history error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get session history error:')
         return reply.status(500).send({
           error: 'Failed to get session history',
         });
@@ -320,7 +320,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
     preHandler: [authMiddleware],
     async handler(request, reply) {
       try {
-        const telegramUser = request.telegramUser;
+        const telegramUser = request.telegramUser!;
         
         const user = await fastify.prisma.user.findUnique({
           where: { telegramId: BigInt(telegramUser.id) },
@@ -356,7 +356,7 @@ export async function sessionRoutes(fastify: FastifyInstance) {
           },
         };
       } catch (error) {
-        fastify.log.error('Get active session error:', error);
+        fastify.log.error({ err: error instanceof Error ? error : new Error('Unknown') }, 'Get active session error:')
         return reply.status(500).send({
           error: 'Failed to get active session',
         });
