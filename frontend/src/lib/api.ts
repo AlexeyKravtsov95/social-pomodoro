@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
 
 // Mock Telegram initData for development in browser
 // Замените user.id на ваш Telegram ID для тестирования
@@ -8,7 +8,9 @@ async function request<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_URL}${endpoint}`;
+  // Normalize URL - remove leading slash from endpoint if API_URL already ends with /api
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  const url = `${API_URL}/${normalizedEndpoint}`;
   
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
