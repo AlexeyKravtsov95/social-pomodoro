@@ -156,7 +156,7 @@ export default function TeamScreen() {
             {user.team?.name || 'Моя команда'}
           </h1>
           <p className="text-text-secondary text-sm">
-            {user.team?.members.length || 0} участников
+            {user.team?.members?.length || 0} участников
           </p>
         </div>
         <button
@@ -194,7 +194,7 @@ export default function TeamScreen() {
           Участники
         </h3>
         <div className="space-y-3">
-          {user.team?.members.map((member) => (
+          {user.team?.members?.map((member) => (
             <TeamMemberCard key={member.id} member={member} />
           ))}
         </div>
