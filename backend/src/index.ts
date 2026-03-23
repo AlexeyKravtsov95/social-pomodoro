@@ -25,14 +25,9 @@ const fastify = Fastify({
 fastify.decorate('env', env);
 fastify.decorate('prisma', prisma);
 
-// Register global CORS handler - MUST be before routes
-fastify.options('*', async (request, reply) => {
-  reply.send();
-});
-
-// Register CORS for frontend
+// Register CORS for frontend - MUST be before routes
 await fastify.register(cors, {
-  origin: true, // Allow all origins for now
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
