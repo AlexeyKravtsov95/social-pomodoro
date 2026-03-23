@@ -6,13 +6,15 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "start:with-db": "prisma generate && prisma migrate deploy && node dist/index.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --accept-data-loss",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "db:migrate:deploy": "prisma migrate deploy",
     "seed:quests": "tsx scripts/seed-quests.ts",
     "heroku-postbuild": "prisma generate",
-    "railway-start": "prisma generate && prisma db push --accept-data-loss && node dist/index.js"
+    "railway-start": "npm run start:with-db"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
