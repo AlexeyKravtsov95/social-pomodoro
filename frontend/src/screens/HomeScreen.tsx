@@ -151,10 +151,18 @@ export default function HomeScreen() {
                       : 'bg-background-secondary border-white/10 hover:border-white/20'
                   }`}
                 >
-                  <div className="text-lg font-bold text-text-primary">
+                  <div className={`text-lg font-bold ${
+                    selectedDuration === duration.value
+                      ? 'text-white'
+                      : 'text-text-primary'
+                  }`}>
                     {duration.label}
                   </div>
-                  <div className="text-xs text-text-muted mt-1">
+                  <div className={`text-xs mt-1 ${
+                    selectedDuration === duration.value
+                      ? 'text-white/80'
+                      : 'text-text-muted'
+                  }`}>
                     +{duration.xp} XP
                   </div>
                 </button>
