@@ -59,8 +59,8 @@ export default function TeamScreen() {
       navigator.clipboard.writeText(inviteLink);
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       window.Telegram?.WebApp?.showPopup({
-        title: 'Invite Link Copied!',
-        message: 'Share this link with your friends',
+        title: 'Ссылка скопирована!',
+        message: 'Поделитесь этой ссылкой с друзьями',
         buttons: [{ type: 'ok' }],
       });
     }

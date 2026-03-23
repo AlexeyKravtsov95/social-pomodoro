@@ -64,8 +64,8 @@ export default function HomeScreen() {
       // Show completion popup
       if (result.isValid) {
         window.Telegram?.WebApp?.showPopup({
-          title: '🎉 Focus Complete!',
-          message: `You earned ${result.xpEarned} XP!`,
+          title: '🎉 Фокус завершён!',
+          message: `Вы получили ${result.xpEarned} XP!`,
           buttons: [{ type: 'ok' }],
         });
       }
