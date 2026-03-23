@@ -10,9 +10,9 @@ export async function authMiddleware(
   const authHeader = request.headers.authorization;
   const initData = extractInitDataFromHeader(authHeader);
   
-  // Skip validation in development mode for testing in browser
-  if (request.server.env.NODE_ENV === 'development') {
-    // Create mock user for development (no auth required)
+  // Skip validation in development mode or if DISABLE_AUTH is set
+  if (request.server.env.NODE_ENV === 'development' || request.server.env.DISABLE_AUTH === 'true') {
+    // Create mock user for development/testing (no auth required)
     request.telegramUser = {
       id: 123456789,
       first_name: 'Test',
