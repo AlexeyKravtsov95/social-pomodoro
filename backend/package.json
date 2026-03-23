@@ -7,11 +7,12 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:push": "prisma db push --accept-data-loss",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "seed:quests": "tsx scripts/seed-quests.ts",
-    "heroku-postbuild": "prisma generate && prisma db push"
+    "heroku-postbuild": "prisma generate",
+    "railway-start": "prisma generate && prisma db push --accept-data-loss && node dist/index.js"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
