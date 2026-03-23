@@ -24,14 +24,17 @@ export default function HomeScreen() {
 
   const handleStart = async () => {
     try {
+      console.log('Starting session with duration:', selectedDuration);
       setIsStarting(true);
       const session = await api.session.start(selectedDuration);
+      console.log('Session started:', session);
       startSession(session);
-      
+
       // Haptic feedback
       window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium');
     } catch (error) {
       console.error('Failed to start session:', error);
+      window.Telegram?.WebApp?.showAlert('Failed to start: ' + (error as Error).message);
     } finally {
       setIsStarting(false);
     }
