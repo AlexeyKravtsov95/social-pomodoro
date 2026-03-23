@@ -54,13 +54,16 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 // Start server
 try {
+  const port = parseInt(env.PORT || '3000', 10);
+  const host = '0.0.0.0';
+  
   await fastify.listen({
-    port: parseInt(env.PORT, 10),
-    host: env.HOST
+    port,
+    host
   });
-  const addr = fastify.server.address();
-  fastify.log.info(`🚀 Server running at http://${env.HOST}:${env.PORT}`);
-  fastify.log.info(`📡 Actual address: ${JSON.stringify(addr)}`);
+  
+  fastify.log.info(`🚀 Server running on port ${port}`);
+  fastify.log.info(`📡 Listening on ${host}:${port}`);
   
   // Setup cron jobs after server starts
   const weeklyReset = setupWeeklyReset(prisma);
