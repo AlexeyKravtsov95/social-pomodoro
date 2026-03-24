@@ -56,10 +56,21 @@ export default function TeamScreen() {
   const handleCopyInvite = () => {
     if (user?.team?.inviteCode) {
       const inviteLink = `https://t.me/your_bot?start=${user.team.inviteCode}`;
-      navigator.clipboard.writeText(inviteLink);
+      
+      // Try to copy to clipboard
+      navigator.clipboard.writeText(inviteLink).catch(() => {
+        // Fallback: just show the link
+        window.Telegram?.WebApp?.showPopup({
+          title: 'Ссылка для приглашения',
+          message: inviteLink,
+          buttons: [{ type: 'ok' }],
+        });
+        return;
+      });
+      
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
       window.Telegram?.WebApp?.showPopup({
-        title: 'Ссылка скопирована!',
+        title: '✅ Ссылка скопирована!',
         message: 'Поделитесь этой ссылкой с друзьями',
         buttons: [{ type: 'ok' }],
       });
